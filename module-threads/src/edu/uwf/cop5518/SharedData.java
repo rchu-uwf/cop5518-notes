@@ -10,7 +10,7 @@ public class SharedData {
     private int _g = 0;
     private int _maxValue;
 
-    private static int MAX_VALUE = 3;
+    private static int MAX_VALUE = 1000;
 
     public SharedData(int maxValue) {
         _maxValue = maxValue;

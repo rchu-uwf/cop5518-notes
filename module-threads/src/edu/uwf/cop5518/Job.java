@@ -14,7 +14,7 @@ public class Job extends Thread {
     @Override
     public void run() {
         for (int i=0; i < _sharedData.getRange(); ++i) {
-            System.out.println(_name + " " + i + " " + _sharedData.getValue() + "\n");
+            //System.out.println(_name + " " + i + " " + _sharedData.getValue() + "\n");
             _sharedData.incrementValue();
         }
     }
