@@ -8,14 +8,14 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 /*
- * UDPclient.java
+ * UDPServer.java
  * Systems and Networks II
  * Project 2
  *
  * This file describes the functions to be implemented by the UDPclient class
  * You may also implement any auxillary functions you deem necessary.
  */
-public class UDPclient {
+public class UDPServer {
 
     private static final int BUFFER_SIZE = 256;
     private DatagramSocket _socket; // the socket for communication with a server
@@ -23,7 +23,7 @@ public class UDPclient {
     /**
      * Constructs a TCPclient object.
      */
-    public UDPclient() {
+    public UDPServer() {
     }
 
     /**
@@ -33,7 +33,7 @@ public class UDPclient {
      */
     public int createSocket() {
         try {
-            _socket = new DatagramSocket(62000);
+            _socket = new DatagramSocket(61000);
         } catch (SocketException ex) {
             System.err.println("unable to create and bind socket");
             return -1;
@@ -46,10 +46,9 @@ public class UDPclient {
      * Sends a request for service to the server. Do not wait for a reply in this function. This will be
      * an asynchronous call to the server.
      *
-     * @param request - the request to be sent
+     * @param request  - the request to be sent
      * @param hostAddr - the ip or hostname of the server
-     * @param port - the port number of the server
-     *
+     * @param port     - the port number of the server
      * @return - 0, if no error; otherwise, a negative number indicating the error
      */
     public int sendRequest(String request, String hostAddr, int port) {
@@ -114,20 +113,20 @@ public class UDPclient {
      * The main function. Use this function for
      * testing your code. We will provide a new main function on the day of the lab demo.
      */
-    public static void main(String[] args)
-    {
-        UDPclient client;
-        String    serverName;
-        String    req;
+    public static void main(String[] args) {
+        UDPServer server;
+        String serverName;
+        String req;
+        String scratch;
 
         if (args.length != 2) {
-            System.err.println("Usage: UDPclient <serverName> <port number>\n");
+            System.err.println("Usage: UDPServer <serverName> <port number>\n");
             return;
         }
         try {
             serverName = args[0];
         } catch (NullPointerException xcp) {
-            System.err.println("Usage: UDPclient <serverName> <port number>\n");
+            System.err.println("Usage: UDPServer <serverName> <port number>\n");
             return;
         }
 
@@ -135,46 +134,46 @@ public class UDPclient {
         try {
             portNum = Integer.parseInt(args[1]);
         } catch (NumberFormatException xcp) {
-            System.err.println("Usage: UDPclient <serverName> <port number>\n");
+            System.err.println("Usage: UDPServer <serverName> <port number>\n");
             return;
         }
 
         // construct client and client socket
-        client = new UDPclient();
-        if (client.createSocket() < 0) {
+        server = new UDPServer();
+        if (server.createSocket() < 0) {
             return;
         }
 
-        System.out.print ("Enter a request: ");
-        //req = System.console().readLine();
-        req = "Saturn has many rings.";
-
-        if (client.sendRequest(req, serverName, portNum) < 0) {
-            client.closeSocket();
-            return;
-        }
-
-        String response = client.receiveResponse();
+        String response = server.receiveResponse();
         if (response != null) {
-            UDPclient.printResponse(response.trim());
+            UDPServer.printResponse(response.trim());
+        } else {
+            System.err.println("incorrect response from server");
         }
-        else {
-            System.err.println ("incorrect response from server");
+
+//        System.out.print("Enter a request: ");
+//        req = System.console().readLine();
+
+        scratch =  response.trim() + " Jupiter has rings too.";
+
+        if (server.sendRequest(scratch, serverName, portNum) < 0) {
+            server.closeSocket();
+            return;
         }
-        client.closeSocket();
+
+
+        server.closeSocket();
     }
 
     /**
      * Creates a datagram from the specified request and destination host and port information.
      *
-     * @param request - the request to be submitted to the server
+     * @param request  - the request to be submitted to the server
      * @param hostname - the hostname of the host receiving this datagram
-     * @param port - the port number of the host receiving this datagram
-     *
+     * @param port     - the port number of the host receiving this datagram
      * @return a complete datagram or null if an error occurred creating the datagram
      */
-    private DatagramPacket createDatagramPacket(String request, String hostname, int port)
-    {
+    private DatagramPacket createDatagramPacket(String request, String hostname, int port) {
         byte buffer[] = new byte[BUFFER_SIZE];
 
         // empty message into buffer
@@ -185,15 +184,15 @@ public class UDPclient {
         // copy message into buffer
         byte data[] = request.getBytes();
         System.arraycopy(data, 0, buffer, 0, Math.min(data.length, buffer.length));
-        
+
         InetAddress hostAddr;
         try {
             hostAddr = InetAddress.getByName(hostname);
         } catch (UnknownHostException ex) {
-            System.err.println ("invalid host address");
+            System.err.println("invalid host address");
             return null;
         }
 
-        return new DatagramPacket (buffer, BUFFER_SIZE, hostAddr, port);
+        return new DatagramPacket(buffer, BUFFER_SIZE, hostAddr, port);
     }
 }
